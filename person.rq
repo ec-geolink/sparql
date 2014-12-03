@@ -1,0 +1,18 @@
+PREFIX ol-person: <http://schema.oceanlink.org/person#>
+PREFIX ol-person-info: <http://schema.oceanlink.org/personal-info-item#>
+PREFIX ol-person-name: <http://schema.oceanlink.org/person-name#>
+
+SELECT ?person ?fullName ?firstName ?lastName
+
+WHERE {
+  ?person a ol-person:Person .
+  ?person ol-person:hasPersonalInfoItem ?personInfo .
+  ?personInfo ol-person-info:hasPersonInfoValue ?personName .
+  ?personName ol-person-name:fullNameAsString ?fullName .
+  OPTIONAL {
+    ?personName ol-person-name:firstOrGivenName ?firstName .
+  }
+  OPTIONAL {
+    ?personName ol-person-name:familyOrSurname  ?lastName .
+  }
+}
