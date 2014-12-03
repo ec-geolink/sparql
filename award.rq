@@ -1,0 +1,15 @@
+PREFIX ol-award: <http://schema.oceanlink.org/funding-award#>
+PREFIX ol-info: <http://schema.oceanlink.org/information-object#>
+
+SELECT distinct ?award ?funder ?awardName ?webPage
+#?awardName ?webPage 
+WHERE {
+  ?award a ol-award:FundingAward .
+  ?award ol-award:hasFundingAgent ?funder .
+  
+  ?award ol-award:isDescribedBy ?awardInfo .
+  ?awardInfo ol-info:hasCanonicalName ?awardName .
+  OPTIONAL {
+    ?awardInfo ol-info:hasWebpage ?webPage .
+  }
+}
