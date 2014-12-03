@@ -1,0 +1,12 @@
+PREFIX ol-info: <http://schema.oceanlink.org/information-object#>
+PREFIX ol-org: <http://schema.oceanlink.org/organization#>
+
+SELECT ?organization ?orgName ?webPage
+WHERE {
+  ?organization a ol-org:Organization .
+  ?organization ol-org:isDescribedBy ?orgInfo .
+  ?orgInfo ol-info:hasCanonicalName ?orgName .
+  OPTIONAL {
+    ?orgInfo ol-info:hasWebpage ?webPage .
+  }
+}
