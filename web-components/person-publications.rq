@@ -5,16 +5,18 @@ WHERE {
   ?person a gl:Person .             
   { SELECT DISTINCT ?person 
     WHERE { 
-       { ?target owl:sameAs ?person . } 
-       UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?person . } 
-       UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } 
-       UNION { ?person a gl:Person . FILTER (?person = ?target) }
+       # find all gl:Person with this Identifier
        VALUES (?scheme ?pid) { (<http://purl.spar.org/datacite/orcid> "0000-0002-6059-4651") }
        ?target gl:hasIdentifier ?identifier . 
        ?identifier rdf:type gl:Identifier . 
        ?identifier gl:hasIdentifierScheme ?scheme .
        ?identifier gl:hasIdentifierValue ?pid_value . 
        FILTER (str(?pid_value) = ?pid) 
+       # find all instnaces of that person across GeoLink 
+       { ?target owl:sameAs ?person . } 
+       UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?person . } 
+       UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } 
+       UNION { ?person a gl:Person . FILTER (?person = ?target) }
     } 
   } 
   ?publication a gl:Document . 
