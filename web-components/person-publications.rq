@@ -1,5 +1,4 @@
-# VALUES ?scheme ?pid { <http://purl.spar.org/datacite/orcid> "0000-0002-6059-4651" }
-
+# change the line, VALUES (?scheme ?pid) { (<scheme> "pid") } to search for other PIDs
 PREFIX gl: <http://schema.geolink.org/1.0/base/main#> 
 SELECT DISTINCT ?publication ?role ?title ?alt_title ?pub_type 
 WHERE { 
@@ -9,7 +8,8 @@ WHERE {
        { ?target owl:sameAs ?person . } 
        UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?person . } 
        UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } 
-       UNION { ?person a gl:Person . FILTER (?person = ?target) } 
+       UNION { ?person a gl:Person . FILTER (?person = ?target) }
+       VALUES (?scheme ?pid) { (<http://purl.spar.org/datacite/orcid> "0000-0002-6059-4651") }
        ?target gl:hasIdentifier ?identifier . 
        ?identifier rdf:type gl:Identifier . 
        ?identifier gl:hasIdentifierScheme ?scheme .
@@ -18,12 +18,7 @@ WHERE {
     } 
   } 
   ?publication a gl:Document . 
-  { ?publication gl:hasPart ?digital_object . 
-     ?digital_object a gl:DigitalObject .  
-     ?digital_object ?role ?person . 
-  } UNION { 
-    ?publication ?role ?person . 
-  } 
+  ?publication ?role ?person . 
   OPTIONAL { ?publication gl:hasTitle ?title . } 
   OPTIONAL { ?publication gl:title ?alt_title . } 
   OPTIONAL { ?publication gl:hasDocumentType ?pub_type . } 
