@@ -1,0 +1,32 @@
+##Documents/Publications by Author URI
+
+PREFIX gl: <http://schema.geolink.org/1.0/base/main#> 
+
+SELECT ?pubTitle ?pubURL
+WHERE { 
+  ?publication ?document_role <https://darchive.mblwhoilibrary.org/rdf/resource/concept/uuid:e7d1ac61-f985-4469-aee3-8b990929c825> .
+  ?publication rdf:type gl:Document .
+  ?publication gl:hasTitle ?pubTitle .
+  ?publication gl:hasIdentifier ?id .
+  ?id gl:hasIdentifierScheme <http://purl.spar.org/datacite/handle> .
+  ?id gl:hasIdentifierResolveURI ?pubURL .
+}
+
+##Documents/Publications by ORCID Search
+
+PREFIX gl: <http://schema.geolink.org/1.0/base/main#> 
+
+SELECT ?pubTitle ?pubURL
+WHERE { 
+  ?person rdf:type gl:Person .
+  ?person gl:hasIdentifier ?personId .
+  ?personId gl:hasIdentifierScheme <http://purl.spar.org/datacite/orcid> .
+  ?personId gl:hasIdentifierValue ?orcid .
+    Filter regex(?orcid, '0000-0001-7337-225X') .
+  ?publication ?document_role ?person .
+  ?publication rdf:type gl:Document .
+  ?publication gl:hasTitle ?pubTitle .
+  ?publication gl:hasIdentifier ?id .
+  ?id gl:hasIdentifierScheme <http://purl.spar.org/datacite/handle> .
+  ?id gl:hasIdentifierResolveURI ?pubURL .
+} Order by ?orcid
