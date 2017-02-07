@@ -1,0 +1,30 @@
+# change the line, VALUES ?target { <targetURI> }  to search for other cruises
+PREFIX gl: <http://schema.geolink.org/1.0/base/main#>
+SELECT DISTINCT ?cruise ?cruise_title ?cruise_label ?id_value ?id_scheme ?id_uri ?start_port ?start_port_date ?start_port_name ?end_port ?end_port_date ?end_port_name
+WHERE {
+  ?cruise a gl:Cruise .
+  VALUES ?target { <http://lod.bco-dmo.org/geolink/id/deployment/58736> } 
+  { ?cruise owl:sameAs ?target . }
+  UNION { ?target owl:sameAs ?cruise . }
+  UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?cruise . }
+  UNION { ?target owl:sameAs ?match . ?cruise owl:sameAs ?match . }
+  FILTER (?cruise != ?target)
+  OPTIONAL { 
+    ?cruise gl:hasIdentifier ?identifier . 
+    ?identifier gl:hasIdentifierValue ?id_value . 
+    OPTIONAL { ?identifier gl:hasIdentifierScheme ?id_scheme . } 
+    OPTIONAL { ?identifier gl:hasIdentifierResolveURI ?id_uri . } 
+  }
+  OPTIONAL { ?cruise rdfs:label ?cruise_label . }
+  OPTIONAL { ?cruise gl:hasTitle ?cruise_title . }
+  OPTIONAL {
+    ?cruise gl:hasStartPortCall ?start_port .
+    OPTIONAL { ?start_port gl:hasTimeStamp ?start_port_date . }
+    OPTIONAL { ?start_port gl:atPort [ rdfs:label ?start_port_name ] . }
+  }
+  OPTIONAL {
+    ?cruise gl:hasEndPortCall ?end_port .
+    OPTIONAL { ?end_port gl:hasTimeStamp ?end_port_date . }
+    OPTIONAL { ?end_port gl:atPort [ rdfs:label ?end_port_name ] . }
+  }
+}
