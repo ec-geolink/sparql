@@ -1,0 +1,59 @@
+# change the line, VALUES ?target { <targetURI> }  to search for other cruises
+PREFIX gl: <http://schema.geolink.org/1.0/base/main#>
+SELECT DISTINCT ?cruise ?role ?person ?match ?id_value ?id_scheme ?id_uri ?person_full_name ?email_address
+WHERE {
+  { ?cruise a gl:Cruise . ?person ?role ?cruise . ?person a gl:Person .
+    { SELECT DISTINCT ?cruise
+      WHERE {
+        VALUES ?target { <http://lod.bco-dmo.org/geolink/id/deployment/58736> }
+        { ?cruise owl:sameAs ?target . }
+        UNION { ?target owl:sameAs ?cruise . }
+        UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?cruise . }
+        UNION { ?target owl:sameAs ?match . ?cruise owl:sameAs ?match . }
+        UNION { ?cruise a gl:Cruise . FILTER (?cruise = ?target) }
+      }
+    }
+  }
+  UNION {
+    ?cruise a gl:Cruise .
+    ?cruise ?role ?person .
+    ?person a gl:Person .
+    { SELECT DISTINCT ?cruise
+      WHERE {
+        VALUES ?target { <http://lod.bco-dmo.org/geolink/id/deployment/58736> }
+        { ?cruise owl:sameAs ?target . }
+        UNION { ?target owl:sameAs ?cruise . }
+        UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?cruise . }
+        UNION { ?target owl:sameAs ?match . ?cruise owl:sameAs ?match . }
+        UNION { ?cruise a gl:Cruise . FILTER (?cruise = ?target) }
+      }
+    }
+  }
+  UNION {
+    ?cruise a gl:Cruise .
+    ?cruise gl:hasParticipant ?participant .
+    ?participant gl:isPerformedBy ?person .
+    ?person a gl:Person .
+    ?participant gl:hasRoleType ?role .
+    { SELECT DISTINCT ?cruise
+      WHERE {
+        VALUES ?target { <http://lod.bco-dmo.org/geolink/id/deployment/58736> }
+        { ?cruise owl:sameAs ?target . }
+        UNION { ?target owl:sameAs ?cruise . }
+        UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?cruise . }
+        UNION { ?target owl:sameAs ?match . ?cruise owl:sameAs ?match . }
+        UNION { ?cruise a gl:Cruise . FILTER (?cruise = ?target) }
+      }
+    }
+    FILTER (regex(str(?role), 'http://schema.geolink.org/1.0/base/main#','i'))
+    OPTIONAL {
+      ?person gl:hasIdentifier ?identifier .
+      ?identifier gl:hasIdentifierValue ?id_value .
+      OPTIONAL { ?identifier gl:hasIdentifierScheme ?id_scheme . }
+      OPTIONAL { ?identifier gl:hasIdentifierResolveURI ?id_uri . }
+    }
+    OPTIONAL { ?person owl:sameAs ?match . ?match a gl:Person . }
+    OPTIONAL { ?person gl:hasFullName ?person_full_name . }
+    OPTIONAL { ?person gl:hasEmailAddress ?email_address . }
+  }
+}
