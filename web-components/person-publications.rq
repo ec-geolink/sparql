@@ -1,27 +1,43 @@
 # change the line, VALUES (?scheme ?pid) { (<scheme> "pid") } to search for other PIDs
+
 PREFIX gl: <http://schema.geolink.org/1.0/base/main#> 
-SELECT DISTINCT ?publication ?role ?title ?alt_title ?pub_type 
+SELECT DISTINCT ?publication ?role ?title ?alt_title ?pub_type ?pub_date ?citation ?publisher_name ?repository_name ?pub_id_scheme ?pub_id_value
 WHERE { 
+
   ?person a gl:Person .             
   { SELECT DISTINCT ?person 
-    WHERE { 
+    WHERE {
        # find all gl:Person with this Identifier
        VALUES (?scheme ?pid) { (<http://purl.spar.org/datacite/orcid> "0000-0002-6059-4651") }
+       
+       # get all people with this Identifier
        ?target gl:hasIdentifier ?identifier . 
        ?identifier rdf:type gl:Identifier . 
        ?identifier gl:hasIdentifierScheme ?scheme .
        ?identifier gl:hasIdentifierValue ?pid_value . 
        FILTER (str(?pid_value) = ?pid) 
-       # find all instnaces of that person across GeoLink 
+       
+       # find all instances of that person across GeoLink 
        { ?target owl:sameAs ?person . } 
        UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?person . } 
        UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } 
        UNION { ?person a gl:Person . FILTER (?person = ?target) }
     } 
   } 
+  
+  # Person to Document
   ?publication a gl:Document . 
   ?publication ?role ?person . 
   OPTIONAL { ?publication gl:hasTitle ?title . } 
-  OPTIONAL { ?publication gl:title ?alt_title . } 
+  
+  # this line should be removed when Library republishes with gl:hasTitle
+  OPTIONAL { ?publication gl:title ?alt_title . }
+  
   OPTIONAL { ?publication gl:hasDocumentType ?pub_type . } 
- }
+  OPTIONAL { ?publication gl:hasPublicationDate ?pub_date . }
+  OPTIONAL { ?publication gl:hasCitationText ?citation . }
+  OPTIONAL { ?publication gl:hasPublisher ?publisher . ?publisher gl:hasTitle ?publisher_name }
+  OPTIONAL { ?publication gl:hasRepository ?repo . ?repo gl:hasTitle ?repository_name }
+  OPTIONAL { ?publication gl:hasIdentifier ?pub_id . ?pub_id gl:hasIdentifierScheme ?pub_id_scheme . ?pub_id gl:hasIdentifierValue ?pub_id_value }
+}
+ORDER BY DESC(?pub_date)
