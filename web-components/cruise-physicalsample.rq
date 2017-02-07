@@ -1,0 +1,40 @@
+# change the line, VALUES ?target { <targetURI> }  to search for other cruises
+PREFIX gl: <http://schema.geolink.org/1.0/base/main#>
+SELECT DISTINCT ?cruise ?sample ?id_value ?id_scheme ?id_uri ?registration_date ?publication_date ?last_updated_date ?elevation_desc ?feature_of_interest ?feature_of_interest_name ?feature_type ?feature_type_name ?geologic_age ?geologic_age_name ?stratigraphic_unit ?stratigraphic_unit_name ?originates_from ?collection_start_date ?collection_end_date ?person ?role ?person_name ?dataset ?dataset_name ?sample_type ?sample_type_name ?wkt
+WHERE {
+  { ?sample a gl:PhysicalSample .
+    ?sample gl:hasCruise ?cruise .
+    ?cruise a gl:Cruise .
+    { SELECT DISTINCT ?cruise
+      WHERE {
+        VALUES ?target { <http://lod.bco-dmo.org/geolink/id/deployment/616332> } 
+        { ?cruise owl:sameAs ?target . }
+        UNION { ?target owl:sameAs ?cruise . }
+        UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?cruise . }
+        UNION { ?target owl:sameAs ?match . ?cruise owl:sameAs ?match . }
+        UNION { ?target a gl:Cruise . FILTER (?cruise = ?target) } 
+      } 
+    } 
+  }
+  OPTIONAL {
+    ?sample gl:hasIdentifier ?identifier .
+    ?identifier gl:hasIdentifierValue ?id_value .
+    OPTIONAL { ?identifier gl:hasIdentifierScheme ?id_scheme . }
+    OPTIONAL { ?identifier gl:hasIdentifierResolveURI ?id_uri . }
+  }
+  OPTIONAL { ?sample ?role ?person . ?person a gl:Person . ?person rdfs:label ?person_name }
+  OPTIONAL { ?sample gl:hasDataset ?dataset . ?dataset rdfs:label ?dataset_name . }
+  OPTIONAL { ?sample gl:hasSampleType ?sample_type . ?sample rdfs:label ?sample_type_name . }
+  OPTIONAL { ?sample gl:hasCollectionStartDate ?collection_start_date . }
+  OPTIONAL { ?sample gl:hasCollectionEndDate ?collection_end_date . }
+  OPTIONAL { ?sample gl:hasRegistrationDate ?registration_date . }
+  OPTIONAL { ?sample gl:hasLastUpdateDate ?last_updated_date . }
+  OPTIONAL { ?sample gl:hasPublicationDate ?publication_date . }
+  OPTIONAL { ?sample gl:originatesFrom ?originates_from }
+  OPTIONAL { ?sample gl:hasGeologicAge ?geologic_age . ?sample rdfs:label ?geologic_age_name . }
+  OPTIONAL { ?sample gl:hasStratigraphicUnit ?stratigraphic_unit . ?stratigraphic_unit rdfs:label ?stratigraphic_unit_name }
+  OPTIONAL { ?sample gl:hasFeatureOfInterest ?feature_of_interest . ?feature_of_interest rdfs:label ?feature_of_interest_name .
+  OPTIONAL { ?feature_of_interest gl:hasFeatureType ?feature_type . ?feature_type rdfs:label ?feature_type_name . } }
+  OPTIONAL { ?sample gl:hasElevationDescription ?elevation_desc . }
+  OPTIONAL { ?sample gl:hasGeometryAsWktLiteral ?wkt . } 
+}
